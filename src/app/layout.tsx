@@ -1,4 +1,5 @@
 ﻿import './globals.css';
+import Script from 'next/script';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
@@ -18,6 +19,7 @@ export default function RootLayout({
         <Header />
         <main>{children}</main>
         <Footer />
+        <Script src="/global-scripts.js" strategy="lazyOnload" />
       </body>
     </html>
   );
