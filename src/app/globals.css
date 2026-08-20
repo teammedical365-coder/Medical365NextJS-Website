@@ -1288,7 +1288,9 @@ p, li {
         color: var(--brand-teal);
     }
 
-    /* ── solutions accordion ── */
+    
+@media (max-width: 1199px) {
+/* ── solutions accordion ── */
     .has-mega-menu {
         position: static;
         /* cancel desktop relative */
@@ -6965,7 +6967,9 @@ p, li {
     .btn-primary { background: linear-gradient(135deg, var(--brand-blue), var(--brand-teal)); color: #fff; padding: 12px 28px; border-radius: 10px; font-weight: 600; display: inline-block; text-decoration: none; }
   
 
-    /* Audit Hotfixes — Stabilising Mobile & Mega Menu */
+    
+}
+/* Audit Hotfixes — Stabilising Mobile & Mega Menu */
     .mega-menu { background-color: #ffffff !important; }
     .header-container { overflow: hidden !important; }
     .br-desktop { display: block; }

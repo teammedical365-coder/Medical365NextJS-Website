@@ -1,5 +1,5 @@
 function initGlobalScripts() {
-    if (window.__globalScriptsInitialized) return;
+    // removed initialization lock for next.js
     window.__globalScriptsInitialized = true;
 
     /* Confirm successful script load to prevent fallback */
