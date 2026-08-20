@@ -584,7 +584,7 @@ p, li {
     overflow: visible; 
 }
 @media (max-width: 768px) {
-    .header-container { overflow: hidden !important; }
+    .header-container { overflow: visible !important; } /* Fixed clipping mega menu */
 }
 
 .main-header.scrolled .header-container {
