@@ -27,7 +27,7 @@ export default function PseoPage({ params }: { params: { slug: string } }) {
     notFound();
   }
 
-  const testimonial = data.TESTIMONIALS[page.testimonial_idx];
+  const testimonial = data.TESTIMONIALS[page.testimonial_idx || 0];
   
   // Read the raw HTML file and replace the variables manually server-side
   let html = fs.readFileSync(path.join(process.cwd(), 'src/app/[slug]/main.html'), 'utf-8');
