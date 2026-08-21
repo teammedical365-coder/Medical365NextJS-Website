@@ -10,8 +10,9 @@ export function generateStaticParams() {
   }));
 }
 
-export function generateMetadata({ params }: { params: { slug: string } }): Metadata {
-  const page = data.PAGES.find((p) => p.slug === params.slug);
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> | { slug: string } }): Promise<Metadata> {
+  const resolvedParams = await params;
+  const page = data.PAGES.find((p) => p.slug === resolvedParams.slug);
   if (!page) return {};
   
   return {
@@ -20,8 +21,11 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
   };
 }
 
-export default function PseoPage({ params }: { params: { slug: string } }) {
-  const page = data.PAGES.find((p) => p.slug === params.slug);
+export default async function PseoPage({ params }: { params: Promise<{ slug: string }> | { slug: string } }) {
+  const resolvedParams = await params;
+  console.log("Looking for slug:", resolvedParams.slug);
+  const page = data.PAGES.find((p) => p.slug === resolvedParams.slug);
+  console.log("Page found:", !!page);
 
   if (!page) {
     notFound();
@@ -42,12 +46,12 @@ export default function PseoPage({ params }: { params: { slug: string } }) {
   html = html.replace(/\{\{testimonial_name\}\}/g, testimonial.name || '');
   html = html.replace(/\{\{testimonial_role\}\}/g, testimonial.role || '');
 
-  html = html.replace(/\{\{faq1_question\}\}/g, page.faq[0][0] || '');
-  html = html.replace(/\{\{faq1_answer\}\}/g, page.faq[0][1] || '');
-  html = html.replace(/\{\{faq2_question\}\}/g, page.faq[1][0] || '');
-  html = html.replace(/\{\{faq2_answer\}\}/g, page.faq[1][1] || '');
-  html = html.replace(/\{\{faq3_question\}\}/g, page.faq[2][0] || '');
-  html = html.replace(/\{\{faq3_answer\}\}/g, page.faq[2][1] || '');
+  html = html.replace(/\{\{faq1_question\}\}/g, page.faq?.[0]?.[0] || '');
+  html = html.replace(/\{\{faq1_answer\}\}/g, page.faq?.[0]?.[1] || '');
+  html = html.replace(/\{\{faq2_question\}\}/g, page.faq?.[1]?.[0] || '');
+  html = html.replace(/\{\{faq2_answer\}\}/g, page.faq?.[1]?.[1] || '');
+  html = html.replace(/\{\{faq3_question\}\}/g, page.faq?.[2]?.[0] || '');
+  html = html.replace(/\{\{faq3_answer\}\}/g, page.faq?.[2]?.[1] || '');
 
   return (
     <div dangerouslySetInnerHTML={{ __html: html }} />
