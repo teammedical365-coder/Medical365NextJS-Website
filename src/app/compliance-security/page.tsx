@@ -2,8 +2,7 @@ import fs from 'fs';
 import path from 'path';
 
 export const metadata = {
-  title: `Compliance & Security | Medical365 - ABDM, DPDP & ISO 27001 Certified`,
-  description: `Technical details of Medical365's security architecture. Detailed compliance with ABDM M1, M2, M3 milestones, DPDP Act 2023, and global ISO 27001 certification.`,
+  title: 'Compliance & Security | Medical365',
 };
 
 export default function Page() {

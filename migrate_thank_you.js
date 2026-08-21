@@ -1,0 +1,68 @@
+﻿const fs = require('fs');
+const path = require('path');
+
+const page = { file: 'thank-you.html', slug: 'thank-you' };
+
+let globalCss = fs.readFileSync('src/app/globals.css', 'utf-8');
+const sourcePath = path.join('..', page.file);
+
+if (fs.existsSync(sourcePath)) {
+    let content = fs.readFileSync(sourcePath, 'utf-8');
+    
+    // Extract CSS
+    const styleMatches = content.match(/<style>([\s\S]*?)<\/style>/g);
+    if (styleMatches) {
+        for (const sm of styleMatches) {
+            const rawCss = sm.replace(/<\/?style>/g, '');
+            if (!rawCss.includes('.mega-menu')) {
+                globalCss += `\n/* Extracted from ${page.file} */\n` + rawCss;
+            }
+        }
+    }
+    
+    // Extract Body
+    const bodyMatch = content.match(/<\/header>([\s\S]*?)<footer[^>]*id="mega-footer"/i);
+    if (bodyMatch) {
+        let mainContent = bodyMatch[1];
+        mainContent = mainContent.replace(/href="((?!http|#|\/)[^"]+)\.html"/g, 'href="/$1"');
+        mainContent = mainContent.replace(/href="((?!http|#|\/)[^"]+)"/g, (match, p1) => {
+            return `href="/${p1}"`;
+        });
+        mainContent = mainContent.replace(/https:\/\/www\.medical365\.in\//g, '/');
+        mainContent = mainContent.replace(/src="([^"]+\.(jpg|png|svg|webp))"/g, (match, p1) => {
+            if (p1.startsWith('http') || p1.startsWith('/')) return match;
+            return `src="/${p1}"`;
+        });
+        
+        const dir = path.join('src/app', page.slug);
+        if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+        fs.writeFileSync(path.join(dir, 'main.html'), mainContent);
+        
+        const tsx = `import fs from 'fs';
+import path from 'path';
+
+export const metadata = {
+  title: 'Thank You | Medical365',
+};
+
+export default function Page() {
+  const html = fs.readFileSync(path.join(process.cwd(), 'src/app/${page.slug}/main.html'), 'utf-8');
+  return <div dangerouslySetInnerHTML={{ __html: html }} />;
+}
+`;
+        fs.writeFileSync(path.join(dir, 'page.tsx'), tsx);
+        console.log(`Migrated ${page.file} -> /${page.slug}`);
+    } else {
+        console.log('No header/footer boundary found in thank-you.html');
+        
+        // Let's just wrap the body content
+        const bodyFallback = content.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+        if (bodyFallback) {
+             // ... actually skip for now if it doesn't match standard
+             console.log('Skipping fallback');
+        }
+    }
+}
+
+fs.writeFileSync('src/app/globals.css', globalCss);
+console.log('Appended thank-you styles to globals.css');
