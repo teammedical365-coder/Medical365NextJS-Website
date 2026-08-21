@@ -23,9 +23,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function PseoPage({ params }: { params: Promise<{ slug: string }> | { slug: string } }) {
   const resolvedParams = await params;
-  console.log("Looking for slug:", resolvedParams.slug);
   const page = data.PAGES.find((p) => p.slug === resolvedParams.slug);
-  console.log("Page found:", !!page);
 
   if (!page) {
     notFound();
@@ -52,6 +50,44 @@ export default async function PseoPage({ params }: { params: Promise<{ slug: str
   html = html.replace(/\{\{faq2_answer\}\}/g, page.faq?.[1]?.[1] || '');
   html = html.replace(/\{\{faq3_question\}\}/g, page.faq?.[2]?.[0] || '');
   html = html.replace(/\{\{faq3_answer\}\}/g, page.faq?.[2]?.[1] || '');
+
+  // Generate related links
+  const featurePages = data.PAGES.filter(p => p.feature === page.feature && p.slug !== page.slug).slice(0, 15);
+  const locationPages = data.PAGES.filter(p => p.location === page.location && p.slug !== page.slug).slice(0, 15);
+
+  let relatedHtml = `<div class="strong-internal-links" style="padding: 0;">`;
+  
+  // Section A
+  relatedHtml += `
+      <div style="margin-bottom: 48px;">
+          <div style="display:flex; align-items:center; gap:10px; margin-bottom: 20px; border-bottom: 2px solid #1A56DB; padding-bottom: 12px;">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="color:#37B39C;flex-shrink:0;" aria-hidden="true"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+              <h3 style="font-size:1.2rem; font-weight:800; color:#1A56DB; margin:0;">${page.feature} - Available Across Rajasthan</h3>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px 24px;">`;
+  
+  for (const fp of featurePages) {
+      relatedHtml += `<a href="/${fp.slug}" style="display:flex;align-items:center;gap:6px;color:#374151;text-decoration:none;font-size:0.875rem;padding:6px 0;border-bottom:1px solid #F3F4F6;transition:color 0.15s;" onmouseover="this.style.color='#1A56DB'" onmouseout="this.style.color='#374151'"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg> ${fp.feature} in ${fp.location}</a>`;
+  }
+  
+  relatedHtml += `</div></div>`;
+  
+  // Section B
+  relatedHtml += `
+      <div style="margin-bottom: 48px;">
+          <div style="display:flex; align-items:center; gap:10px; margin-bottom: 20px; border-bottom: 2px solid #0D9488; padding-bottom: 12px;">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="color:#1A56DB;flex-shrink:0;" aria-hidden="true"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+              <h3 style="font-size:1.2rem; font-weight:800; color:#0D9488; margin:0;">More Healthcare Solutions in ${page.location}</h3>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px 24px;">`;
+          
+  for (const lp of locationPages) {
+      relatedHtml += `<a href="/${lp.slug}" style="display:flex;align-items:center;gap:6px;color:#374151;text-decoration:none;font-size:0.875rem;padding:6px 0;border-bottom:1px solid #F3F4F6;transition:color 0.15s;" onmouseover="this.style.color='#1A56DB'" onmouseout="this.style.color='#374151'"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg> ${lp.feature} in ${lp.location}</a>`;
+  }
+  
+  relatedHtml += `</div></div></div>`;
+  
+  html = html.replace(/\{\{related_links_menu\}\}/g, relatedHtml);
 
   return (
     <div dangerouslySetInnerHTML={{ __html: html }} />
